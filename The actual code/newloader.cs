@@ -1,4 +1,4 @@
-﻿using BepInEx;
+using BepInEx;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using System.IO;
@@ -28,23 +28,32 @@ namespace DoomahLevelLoader
             }
         }
 
-        public static string ExtractScene()
-        {
-            if (loadedBundles.Length == 0)
-                return "";
+		public static string ExtractScene()
+		{
+			if (loadedBundles.Length == 0)
+				return "";
 
-            // Ensure currentBundleIndex is within bounds
-            currentBundleIndex = Mathf.Clamp(currentBundleIndex, 0, loadedBundles.Length - 1);
+			currentBundleIndex = Mathf.Clamp(currentBundleIndex, 0, loadedBundles.Length - 1);
 
-            AssetBundle currentBundle = loadedBundles[currentBundleIndex];
+			while (true)
+			{
+				AssetBundle currentBundle = loadedBundles[currentBundleIndex];
 
-            if (currentBundle.isStreamedSceneAssetBundle && currentBundle.GetAllScenePaths().Length != 0)
-            {
-                return currentBundle.GetAllScenePaths().First();
-            }
+				if (currentBundle.isStreamedSceneAssetBundle && currentBundle.GetAllScenePaths().Length != 0)
+				{
+					return currentBundle.GetAllScenePaths().First();
+				}
 
-            return "";
-        }
+				NextBundle();
+
+				if (currentBundleIndex == 0)
+				{
+					Debug.LogError("No scenes found in any loaded bundles.");
+					return "";
+				}
+			}
+		}
+
 
         public static void LoadScene()
         {
